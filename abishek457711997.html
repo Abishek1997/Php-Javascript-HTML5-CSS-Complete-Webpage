@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .container{
+                    
+                margin: 200px 0px 0px 670px;
+                width : 100%;
+                overflow: hidden;
+            }
+            h3{font-weight: bolder;}
+            #formbutton{
+                font-weight: bold;
+                margin: 15px 0px 0px 230px;
+                border-radius: 5px;
+            }
+            #form{
+                
+                width: 180px;
+                margin: 5px 0px 0px 195px;
+                border-color: #45a8de;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class = "container">
+            <h3> Enter URL for largest manufacturers by production (2017) List JSON File</h3>
+            <form>
+                <input type="text" id="form"><br>
+            </form>
+
+            <button type="submit" id="formbutton" onclick="loadXMLDoc()">Submit Query</button>
+        </div>
+    </body>
+    <script>
+        function loadXMLDoc() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+
+            if (this.readyState == 4 && this.status == 200) {
+            let obj = JSON.parse(this.responseText);
+            var table = document.createElement('table'), tr, td, row, cell;
+            table.setAttribute('id','outtable');
+            
+            if (obj.Mainline.Table.Row == null){
+                alert("The JSON file is empty");
+                return;
+            }
+            
+            let cols = obj.Mainline.Table.Header.Data;
+            let rows = obj.Mainline.Table.Row.length;            
+            //console.log(cols)
+
+            tr0 = document.createElement('tr');
+            tr0.setAttribute('id','theader');
+            for (row = 0; row < cols.length; row++){
+                td0 = document.createElement('td');
+                tr0.appendChild(td0);
+                td0.innerHTML = "<center>" + cols[row] + "</center>";
+            }
+            table.appendChild(tr0);
+            for (row = 0; row < rows; row++) {
+                tr = document.createElement('tr');
+                td1 = document.createElement('td');
+                tr.appendChild(td1);
+                td1.innerHTML = obj.Mainline.Table.Row[row]["Rank"];
+                td2 = document.createElement('td');
+                tr.appendChild(td2);
+                td2.innerHTML = obj.Mainline.Table.Row[row]["Group"];
+                td3 = document.createElement('td');
+                tr.appendChild(td3);
+                if (obj.Mainline.Table.Row[row]["Hubs"]["Hub"].every(element => element === null) || obj.Mainline.Table.Row[row]["Hubs"]["Hub"].every(element => element === "")){
+                    td3.innerHTML = ""
+                }
+                else{
+                    td3.innerHTML = "<ul>"
+                    td3.setAttribute('id','space-indent');
+                    td3.innerHTML += "<li> <b>" + obj.Mainline.Table.Row[row]["Hubs"]["Hub"][0] + "</b></li><br>";
+                    var hublen = obj.Mainline.Table.Row[row]["Hubs"]["Hub"].length;
+                    for(let hubcount = 1; hubcount < hublen; hubcount++){
+                    td3.innerHTML += "<li>" + obj.Mainline.Table.Row[row]["Hubs"]["Hub"][hubcount] + "</li><br>";
+                }
+
+                td3.innerHTML += "</ul>"
+                }
+                
+                //console.log(obj.Mainline.Table.Row[row]["Hubs"]["Hub"]);
+                //console.log(hublen);
+            
+                td4 = document.createElement('td');
+                tr.appendChild(td4);
+                td4.innerHTML = obj.Mainline.Table.Row[row]["Vehicles"];
+                td5 = document.createElement('td');
+                tr.appendChild(td5);
+                if (obj.Mainline.Table.Row[row]["HomePage"] == null){
+                    td5.innerHTML = "";
+                }
+                else{
+                    td5.innerHTML = '<a href="'+obj.Mainline.Table.Row[row]["HomePage"]+'">'+obj.Mainline.Table.Row[row]["HomePage"]+'</a>';
+                }
+                td6 = document.createElement('td');
+                tr.appendChild(td6);
+                if (obj.Mainline.Table.Row[row]["Logo"] == null || obj.Mainline.Table.Row[row]["Logo"] == "" ){
+                    td6.innerHTML = "";
+                }
+                else{
+                    td6.setAttribute('id','image');
+                    td6.innerHTML = '<center><img src="'+obj.Mainline.Table.Row[row]["Logo"]+'"></center>';
+                }
+                table.appendChild(tr);
+            }
+            let styletag = "<style> #space-indent{ padding-left: 15px;} #outtable{width: 100%; height: 500px;} table,th, td {empty-cells : inherit; border: 1px solid black;} #theader{font-weight : 900px;} #image{display:block; width = 100%; height: auto;}</style>";
+            var win = window.open('/','_blank','left = 0,top =0,location=yes,scrollbars=yes, width = 1000px, height = 1000px, status=yes,titlebar = yes, toolbar = yes, menubar = yes, resizable = yes');
+            win.document.open('text/html');
+            win.document.write("<html><head></head>" + styletag + "<body></body></html>");
+            win.document.body.appendChild(table);
+            win.document.getElementById("theader").style.fontWeight = "900";
+            win.document.close();
+            }
+        };
+        var content = document.getElementById("form").value;
+        if (content.length == 0 || content == null || content == "" || content == " " || content == "  " || content == "   "  || content == "    "){
+            alert("Please enter a JSON file to be parsed");
+        }
+        else{
+            try{
+                xhttp.open("GET", content, false);
+                xhttp.send();
+            }
+
+            catch(content){
+                alert("ERROR - FILE_NOT_FOUND", content);
+            }  
+        }       
+    }
+    </script>
+</html>
